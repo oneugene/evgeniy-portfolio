@@ -229,7 +229,7 @@ a = "1" OR b="2" AND c="3"
       """
                   q = "1" AND c<="2" OR r>="3" AND u BETWEEN ("4", "5") AND (qwe <> "tryrty" OR l45 <= "asd")
       """
-    val iters = 10//00000
+    val iters = 1000000
     val input = new CharSequenceReader(query)
     val start = System.currentTimeMillis()
     for (i <- 1 to iters) {
