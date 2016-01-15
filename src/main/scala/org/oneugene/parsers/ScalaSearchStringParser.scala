@@ -96,8 +96,8 @@ case class CompositePredicate(operation: String, children: Seq[Predicate]) exten
   * Value object for AST-like tree node which contains information about an operation on a list of values
   *
   * @constructor creates new object for AST-like tree node which contains information about an operation on a list of values
-  * @param operation the operation to apply to the variable reference and [[Seq]] of values
+  * @param operation the operation to apply to the variable reference and sequence of values
   * @param attribute the variable name
-  * @param values the [[Seq]] of [[String]] values
+  * @param values the sequence of string values
   */
 case class ValueOpPredicate(operation: String, attribute: String, values: Seq[String]) extends Predicate
