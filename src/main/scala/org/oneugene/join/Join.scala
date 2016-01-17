@@ -343,7 +343,7 @@ final class HashInnerJoinUnary[L, R, J, K](lr: (Traversable[L], Traversable[R]),
  * val a=List(1,2,3)
  * val b=List(2,3,4)
  *
- * val c = (a,b).innerJoin
+ * val c = a innerJoin b
  * }}}
  */
 final class HashInnerJoinBinary[L, R, J, K](l: Traversable[L]) {
