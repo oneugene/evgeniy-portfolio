@@ -9,3 +9,9 @@ buildNumber.properties
 .idea
 *.iml
 project/
+bin/
+.settings/
+.classpath
+.cache-main
+.cache-tests
+.project
