@@ -1,7 +1,5 @@
 package org.oneugene.join
 
-import scala.Vector
-
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import org.scalatest.OptionValues
@@ -9,136 +7,151 @@ import org.scalatest.prop.PropertyChecks
 
 class JoinTest extends FlatSpec with Matchers with OptionValues with PropertyChecks {
 
-  case class ClassA(id: Int, value: String)
-  case class ClassB(id: Int, value: String)
-  case class ClassC(id: Int, value: String)
+  case class A(key: String, avalue: String)
 
-  implicit object AKey extends HashJoinKey[ClassA, Int] {
-    override def apply(a: ClassA): Int = a.id
-  }
-  implicit object BKey extends HashJoinKey[ClassB, Int] {
-    override def apply(b: ClassB): Int = b.id
-  }
-  implicit object ABKey extends HashJoinKey[(ClassA, ClassB), Int] {
-    override def apply(ab: (ClassA, ClassB)): Int = ab._1.id
-  }
-  implicit object CKey extends HashJoinKey[ClassC, Int] {
-    override def apply(b: ClassC): Int = b.id
-  }
-  implicit object ABPredicate extends JoinPredicate[ClassA, ClassB] {
-    override def apply(l: ClassA, r: ClassB): Boolean = l.id == r.id
-  }
-  implicit object ABCPredicate extends JoinPredicate[(ClassA, ClassB), ClassC] {
-    override def apply(l: (ClassA, ClassB), r: ClassC): Boolean = l._1.id == r.id
-  }
-  implicit object ABInnerJoinCombinator extends TupleInnerJoinCombinator[ClassA, ClassB]
-  implicit object ABCInnerJoinCombinator extends InnerJoinCombinator[(ClassA, ClassB), ClassC, (ClassA, ClassB, ClassC)] {
-    override def apply(l: (ClassA, ClassB), r: ClassC): (ClassA, ClassB, ClassC) = (l._1, l._2, r)
+  case class B(key: Int, bvalue: String)
+
+  implicit object AKey extends HashJoinKey[A, Int] {
+    override def apply(a: A): Int = a.key.toInt
   }
 
-  //  implicit object NestedLoopJoiner extends ParallelNestedLoopJoin[ClassA, ClassB, (ClassA, ClassB)]
-  implicit object NestedLoopJoiner extends RegularNestedLoopJoin[ClassA, ClassB, (ClassA, ClassB)]
+  implicit object BKey extends HashJoinKey[B, Int] {
+    override def apply(b: B): Int = b.key
+  }
 
-  implicit object ByLeftHashJoiner extends ByLeftHashJoin[ClassA, ClassB, (ClassA, ClassB), Int]
-  object ByRightHashJoiner extends ByRightHashJoin[ClassA, ClassB, (ClassA, ClassB), Int]
+  implicit object ABEqObj extends JoinPredicate[A, B] {
+    override def apply(l: A, r: B): Boolean = l.key.toInt == r.key
+  }
 
-  implicit object TripleNestedLoopJoiner extends RegularNestedLoopJoin[(ClassA, ClassB), ClassC, (ClassA, ClassB, ClassC)]
+  implicit object ABInnerJoinCombinator extends TupleInnerJoinCombinator[A, B]
 
-  it should "show how to use method with implicits" in {
-    val as = Array(ClassA(1, "avalue1"))
-    val bs = Array(ClassB(1, "bvalue1"))
-    val cs: Traversable[ClassC] = Vector(ClassC(1, "cvalue1"))
+  implicit object ABLeftOuterJoinCombinator extends TupleLeftOuterJoinCombinator[A, B]
 
-    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+  object NestedLoopJoiner extends RegularNestedLoopJoin[A, B]
+
+  object ByLeftHashJoiner extends ByLeftHashJoin[A, B, (A, B), Int]
+
+  object ByRightHashJoiner extends ByRightHashJoin[A, B, (A, B), Int]
+
+  object ParallelNestedLoopJoiner extends ParallelNestedLoopJoin[A, B]
+
+  "Join result for collections with same ids " should "return all collections elemens" in {
+    val as = List(A("1", "avalue1"), A("2", "avalue2.1"), A("2", "avalue2.2"), A("3", "avalue3"))
+    val bs = List(B(1, "bvalue1"), B(2, "bvalue2.1"), B(2, "bvalue2.2"), B(3, "avalue3"))
+
     val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs)
-    val byRightHashResult = ByRightHashJoiner.innerJoin(as, bs)
-    println(nestedLoopResult)
-    println(byLeftHashResult)
-    println(byRightHashResult)
+    val byRightHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+    val parallelNestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
 
-    val res3 = TripleNestedLoopJoiner.innerJoin(nestedLoopResult, cs)
-    println(res3)
+    val expectedResult = List(
+      A("1", "avalue1") -> B(1, "bvalue1"),
+      A("2", "avalue2.1") -> B(2, "bvalue2.1"),
+      A("2", "avalue2.1") -> B(2, "bvalue2.2"),
+      A("2", "avalue2.2") -> B(2, "bvalue2.1"),
+      A("2", "avalue2.2") -> B(2, "bvalue2.2"),
+      A("3", "avalue3") -> B(3, "avalue3"))
+
+    byLeftHashResult should contain theSameElementsAs expectedResult
+    byRightHashResult should contain theSameElementsAs expectedResult
+    nestedLoopResult should contain theSameElementsAs expectedResult
+    parallelNestedLoopResult should contain theSameElementsAs expectedResult
   }
 
-  it should "show how to use method without implicits" in {
-    val as = Array(ClassA(1, "avalue1"))
-    val bs = Array(ClassB(1, "bvalue1"))
-    val cs: Traversable[ClassC] = Vector(ClassC(1, "cvalue1"))
+  "Extra record in left collection" should "be skipped from inner join result" in {
+    val as = List(A("1", "avalue1"), A("2", "avalue2"))
+    val bs = List(B(1, "bvalue1"))
 
-    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs, { _.id == _.id }, { (_, _) })
-    val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs, { _.id }, { _.id }, { (_, _) })
-    val byRightHashResult = ByRightHashJoiner.innerJoin(as, bs, { _.id }, { _.id }, { (_, _) })
-    println(nestedLoopResult)
-    println(byLeftHashResult)
-    println(byRightHashResult)
+    val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val byRightHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+    val parallelNestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+
+    val expectedResult = List(
+      A("1", "avalue1") -> B(1, "bvalue1"))
+
+    byLeftHashResult should contain theSameElementsAs expectedResult
+    byRightHashResult should contain theSameElementsAs expectedResult
+    nestedLoopResult should contain theSameElementsAs expectedResult
+    parallelNestedLoopResult should contain theSameElementsAs expectedResult
   }
 
-  "NestedLoop Join Type class" should "work" in {
-    import NestedLoopJoin._
-    val as: Traversable[ClassA] = Vector(ClassA(1, "avalue1"))
-    val bs: Traversable[ClassB] = Vector(ClassB(1, "bvalue1"))
-    val cs: Traversable[ClassC] = Vector(ClassC(1, "cvalue1"))
+  "Extra record in left collection" should "be in left outer join result with empty right part" in {
+    val as = List(A("1", "avalue1"), A("2", "avalue2"))
+    val bs = List(B(1, "bvalue1"))
 
-    val res1 = (as, bs).innerJoin
-    val res13 = (res1, cs).innerJoin
+    val nestedLoopResult = NestedLoopJoiner.leftOuterJoin(as, bs)
+    val parallelNestedLoopResult = NestedLoopJoiner.leftOuterJoin(as, bs)
 
-    println("Nested loop type class")
-    println(res1)
-    println(res13)
+    val expectedResult = List(
+      A("1", "avalue1") -> Some(B(1, "bvalue1")),
+      A("2", "avalue2") -> None
+    )
 
-    val res2 = as innerJoin bs innerJoin cs
-    println(res2)
-
+    nestedLoopResult should contain theSameElementsAs expectedResult
+    parallelNestedLoopResult should contain theSameElementsAs expectedResult
   }
 
-  "Hash Join Type class" should "work" in {
-    import HashJoin._
-    val as: Traversable[ClassA] = Vector(ClassA(1, "avalue1"))
-    val bs: Traversable[ClassB] = Vector(ClassB(1, "bvalue1"))
+  "Extra record in right collection" should "be skipped from inner join result" in {
+    val as = List(A("1", "avalue1"))
+    val bs = List(B(1, "bvalue1"), B(2, "bvalue2"))
 
-    val res = (as, bs).innerJoin
-    val res2 = as innerJoin bs
+    val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val byRightHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+    val parallelNestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
 
-    println("Hash type class")
-    println(res)
-    println(res2)
+    val expectedResult = List(
+      A("1", "avalue1") -> B(1, "bvalue1"))
+
+    byLeftHashResult should contain theSameElementsAs expectedResult
+    byRightHashResult should contain theSameElementsAs expectedResult
+    nestedLoopResult should contain theSameElementsAs expectedResult
+    parallelNestedLoopResult should contain theSameElementsAs expectedResult
   }
 
-  it should "measure performance" in {
-    val iters = 2
-    val aCount = 10000
-    val bCount = 100000
+  "Extra record in right collection" should "be skipped from left outer join result" in {
+    val as = List(A("1", "avalue1"))
+    val bs = List(B(1, "bvalue1"), B(2, "bvalue2"))
 
-    val as = for (key <- 1 to aCount) yield ClassA(key, s"avalue$key")
-    val bs = for (key <- 1 to bCount) yield ClassB(key, s"bvalue$key")
-    println("Gen finished")
+    val nestedLoopResult = NestedLoopJoiner.leftOuterJoin(as, bs)
+    val parallelNestedLoopResult = NestedLoopJoiner.leftOuterJoin(as, bs)
 
-    for (i <- 1 to iters) {
-      val start = System.currentTimeMillis()
-      val result = ByLeftHashJoiner.innerJoin(as, bs)
-      val end = System.currentTimeMillis()
-      println(s"ByLeftHashJoiner took ${end - start} ms, result size: ${result.size}")
-    }
+    val expectedResult = List(
+      A("1", "avalue1") -> Some(B(1, "bvalue1")))
 
-    for (i <- 1 to 0) {
-      val start = System.currentTimeMillis()
-      val result = ByRightHashJoiner.innerJoin(as, bs)
-      val end = System.currentTimeMillis()
-      println(s"ByRightHashJoiner took ${end - start} ms, result size: ${result.size}")
-    }
-
-    for (i <- 1 to iters) {
-      val start = System.currentTimeMillis()
-      val result = NestedLoopJoiner.innerJoin(as, bs)
-      val end = System.currentTimeMillis()
-      println(s"NestedLoopJoiner took ${end - start} ms, result size: ${result.size}")
-    }
-    object ParallelNestedLoopJoiner extends ParallelNestedLoopJoin[ClassA, ClassB, (ClassA, ClassB)]
-    for (i <- 1 to iters) {
-      val start = System.currentTimeMillis()
-      val result = ParallelNestedLoopJoiner.innerJoin(as, bs)
-      val end = System.currentTimeMillis()
-      println(s"ParallelNestedLoopJoiner took ${end - start} ms, result size: ${result.size}")
-    }
+    nestedLoopResult should contain theSameElementsAs expectedResult
+    parallelNestedLoopResult should contain theSameElementsAs expectedResult
   }
+
+  "Inner join for empty lists" should "produce empty result" in {
+    val as: Traversable[A] = Nil
+    val bs: Traversable[B] = Nil
+
+    val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val byRightHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+    val parallelNestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+
+    byLeftHashResult shouldBe empty
+    byRightHashResult shouldBe empty
+    nestedLoopResult shouldBe empty
+    parallelNestedLoopResult shouldBe empty
+  }
+
+  "Collections with no common records" should "produce empty inner join result" in {
+    val as = List(A("1", "avalue1"))
+    val bs = List(B(2, "bvalue2"))
+
+    val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val byRightHashResult = ByLeftHashJoiner.innerJoin(as, bs)
+    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+    val parallelNestedLoopResult = NestedLoopJoiner.innerJoin(as, bs)
+
+    byLeftHashResult shouldBe empty
+    byRightHashResult shouldBe empty
+    nestedLoopResult shouldBe empty
+    parallelNestedLoopResult shouldBe empty
+  }
+
 }

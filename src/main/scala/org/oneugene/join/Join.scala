@@ -84,7 +84,7 @@ trait HashJoin[L, R, J, K] {
    * @param c factory function to produce collection elements in result
    */
   def innerJoin(left: Traversable[L], right: Traversable[R])(implicit lKey: HashJoinKey[L, K], rKey: HashJoinKey[R, K], c: InnerJoinCombinator[L, R, J]): Traversable[J] = {
-    this.innerJoin(left, right, lKey, rKey, c);
+    this.innerJoin(left, right, lKey, rKey, c)
   }
 
   /**
@@ -153,9 +153,8 @@ trait ByRightHashJoin[L, R, J, K] extends HashJoin[L, R, J, K] {
  *
  * @tparam L type of elements in `left` collection
  * @tparam R type of elements in `right` collection
- * @tparam J type of elements in collection with inner join results
  */
-trait NestedLoopJoin[L, R, J] {
+trait NestedLoopJoin[L, R] {
   /**
    * A method for inner join with implicit parameters
    *
@@ -164,8 +163,9 @@ trait NestedLoopJoin[L, R, J] {
    * @param right `right` collection
    * @param jp function to check if elements in the collections match
    * @param c factory function to produce collection elements in result
+   * @tparam J type of elements in collection with inner join results
    */
-  def innerJoin(left: Traversable[L], right: Traversable[R])(implicit jp: JoinPredicate[L, R], c: InnerJoinCombinator[L, R, J]): Traversable[J] = {
+  def innerJoin[J](left: Traversable[L], right: Traversable[R])(implicit jp: JoinPredicate[L, R], c: InnerJoinCombinator[L, R, J]): Traversable[J] = {
     this.innerJoin(left, right, jp, c)
   }
 
@@ -177,8 +177,9 @@ trait NestedLoopJoin[L, R, J] {
    * @param right `right` collection
    * @param jp function to check if elements in the collections match
    * @param c factory function to produce collection elements in result
+   * @tparam J type of elements in collection with inner join results
    */
-  def innerJoin(left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, R) => J)): Traversable[J]
+  def innerJoin[J](left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, R) => J)): Traversable[J]
 
   /**
    * A method for left outer join with implicit parameters
@@ -188,8 +189,9 @@ trait NestedLoopJoin[L, R, J] {
    * @param right `right` collection
    * @param jp function to check if elements in the collections match
    * @param c factory function to produce collection elements in result
+   * @tparam J type of elements in collection with left outer join results
    */
-  def leftOuterJoin(left: Traversable[L], right: Traversable[R])(implicit jp: JoinPredicate[L, R], c: LeftOuterJoinCombinator[L, R, J]): Traversable[J] = {
+  def leftOuterJoin[J](left: Traversable[L], right: Traversable[R])(implicit jp: JoinPredicate[L, R], c: LeftOuterJoinCombinator[L, R, J]): Traversable[J] = {
     this.leftOuterJoin(left, right, jp, c)
   }
 
@@ -201,16 +203,17 @@ trait NestedLoopJoin[L, R, J] {
    * @param right `right` collection
    * @param jp function to check if elements in the collections match
    * @param c factory function to produce collection elements in result
+   * @tparam J type of elements in collection with left outer join results
    */
-  def leftOuterJoin(left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, Option[R]) => J)): Traversable[J]
+  def leftOuterJoin[J](left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, Option[R]) => J)): Traversable[J]
 }
 
 /**
  * Default implementation of hash nested loop join
  */
-trait RegularNestedLoopJoin[L, R, J] extends NestedLoopJoin[L, R, J] {
+trait RegularNestedLoopJoin[L, R] extends NestedLoopJoin[L, R] {
 
-  override def leftOuterJoin(left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, Option[R]) => J)): Traversable[J] = {
+  override def leftOuterJoin[J](left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, Option[R]) => J)): Traversable[J] = {
     val result = new ArrayBuffer[J](Math.min(left.size, right.size))
     left.seq.foreach { l =>
       val check = result.size
@@ -226,7 +229,7 @@ trait RegularNestedLoopJoin[L, R, J] extends NestedLoopJoin[L, R, J] {
     result.toVector
   }
 
-  override def innerJoin(left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, R) => J)): Traversable[J] = {
+  override def innerJoin[J](left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, R) => J)): Traversable[J] = {
     val result = new ArrayBuffer[J](Math.min(left.size, right.size))
     left.seq.foreach { l =>
       right.seq.foreach { r =>
@@ -251,8 +254,8 @@ trait RegularNestedLoopJoin[L, R, J] extends NestedLoopJoin[L, R, J] {
 /**
  * Implementation of hash nested loop join using parallel collections
  */
-trait ParallelNestedLoopJoin[L, R, J] extends NestedLoopJoin[L, R, J] {
-  override def leftOuterJoin(left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, Option[R]) => J)): Traversable[J] = {
+trait ParallelNestedLoopJoin[L, R] extends NestedLoopJoin[L, R] {
+  override def leftOuterJoin[J](left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, Option[R]) => J)): Traversable[J] = {
     val zero = Vector[J]()
     left.par.aggregate(zero)({ (acc: Vector[J], l) =>
       val partial = new ArrayBuffer[J]()
@@ -269,7 +272,7 @@ trait ParallelNestedLoopJoin[L, R, J] extends NestedLoopJoin[L, R, J] {
     }, { _ ++ _ })
   }
 
-  override def innerJoin(left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, R) => J)): Traversable[J] = {
+  override def innerJoin[J](left: Traversable[L], right: Traversable[R], jp: ((L, R) => Boolean), c: ((L, R) => J)): Traversable[J] = {
     val zero: Traversable[J] = Nil
     left.par.aggregate(zero)({ (acc, l) =>
       val partial = new ArrayBuffer[J]()
@@ -292,7 +295,7 @@ trait ParallelNestedLoopJoin[L, R, J] extends NestedLoopJoin[L, R, J] {
  * val c = (a,b).innerJoin
  * }}}
  */
-final class NestedLoopInnerJoinUnary[L, R, J](lr: (Traversable[L], Traversable[R]), jp: JoinPredicate[L, R], jc: InnerJoinCombinator[L, R, J], i: NestedLoopJoin[L, R, J]) {
+final class NestedLoopInnerJoinUnary[L, R, J](lr: (Traversable[L], Traversable[R]), jp: JoinPredicate[L, R], jc: InnerJoinCombinator[L, R, J], i: NestedLoopJoin[L, R]) {
   def innerJoin: Traversable[J] = i.innerJoin(lr._1, lr._2)(jp, jc)
 }
 
@@ -307,15 +310,15 @@ final class NestedLoopInnerJoinUnary[L, R, J](lr: (Traversable[L], Traversable[R
  * }}}
  */
 final class NestedLoopJoinBinary[L, R, J](l: Traversable[L]) {
-  def innerJoin(r: Traversable[R])(implicit jp: JoinPredicate[L, R], jc: InnerJoinCombinator[L, R, J], i: NestedLoopJoin[L, R, J]): Traversable[J] = i.innerJoin(l, r)(jp, jc)
-  def leftOuterJoin(r: Traversable[R])(implicit jp: JoinPredicate[L, R], jc: LeftOuterJoinCombinator[L, R, J], i: NestedLoopJoin[L, R, J]): Traversable[J] = i.leftOuterJoin(l, r)(jp, jc)
+  def innerJoin(r: Traversable[R])(implicit jp: JoinPredicate[L, R], jc: InnerJoinCombinator[L, R, J], i: NestedLoopJoin[L, R]): Traversable[J] = i.innerJoin(l, r)(jp, jc)
+  def leftOuterJoin(r: Traversable[R])(implicit jp: JoinPredicate[L, R], jc: LeftOuterJoinCombinator[L, R, J], i: NestedLoopJoin[L, R]): Traversable[J] = i.leftOuterJoin(l, r)(jp, jc)
 }
 
 /**
  * Implicit declarations for syntax described in [[org.oneugene.join.NestedLoopInnerJoinUnary]] and [[org.oneugene.join.NestedLoopJoinBinary]]
  */
 trait ToNestedLoopInnerJoinOps {
-  implicit def toInnerJoinUnary[L, R, J](lr: (Traversable[L], Traversable[R]))(implicit jp: JoinPredicate[L, R], jc: InnerJoinCombinator[L, R, J], i: NestedLoopJoin[L, R, J]) = new NestedLoopInnerJoinUnary(lr, jp, jc, i)
+  implicit def toInnerJoinUnary[L, R, J](lr: (Traversable[L], Traversable[R]))(implicit jp: JoinPredicate[L, R], jc: InnerJoinCombinator[L, R, J], i: NestedLoopJoin[L, R]) = new NestedLoopInnerJoinUnary(lr, jp, jc, i)
 
   implicit def toInnerJoinBinary[L, R, J](l: Traversable[L]): NestedLoopJoinBinary[L, R, J] = new NestedLoopJoinBinary[L, R, J](l)
 }
