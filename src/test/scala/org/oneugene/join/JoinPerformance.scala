@@ -25,11 +25,11 @@ class JoinPerformance extends FlatSpec with Matchers with OptionValues with Prop
 
   implicit object ABInnerJoinCombinator extends TupleInnerJoinCombinator[ClassA, ClassB]
 
-  object NestedLoopJoiner extends RegularNestedLoopJoin[ClassA, ClassB]
+  object NestedLoopJoiner extends RegularNestedLoopJoin
 
-  object ByLeftHashJoiner extends ByLeftHashJoin[ClassA, ClassB, (ClassA, ClassB), Int]
+  object ByLeftHashJoiner extends ByLeftHashJoin
 
-  object ByRightHashJoiner extends ByRightHashJoin[ClassA, ClassB, (ClassA, ClassB), Int]
+  object ByRightHashJoiner extends ByRightHashJoin
 
   it should "measure performance" in {
     val iters = 2
@@ -60,7 +60,7 @@ class JoinPerformance extends FlatSpec with Matchers with OptionValues with Prop
       val end = System.currentTimeMillis()
       println(s"NestedLoopJoiner took ${end - start} ms, result size: ${result.size}")
     }
-    object ParallelNestedLoopJoiner extends ParallelNestedLoopJoin[ClassA, ClassB]
+    object ParallelNestedLoopJoiner extends ParallelNestedLoopJoin
     for (i <- 1 to iters) {
       val start = System.currentTimeMillis()
       val result = ParallelNestedLoopJoiner.innerJoin(as, bs)

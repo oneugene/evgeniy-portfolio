@@ -27,13 +27,13 @@ class JoinTest extends FlatSpec with Matchers with OptionValues with PropertyChe
 
   implicit object ABLeftOuterJoinCombinator extends TupleLeftOuterJoinCombinator[A, B]
 
-  object NestedLoopJoiner extends RegularNestedLoopJoin[A, B]
+  object NestedLoopJoiner extends RegularNestedLoopJoin
 
-  object ByLeftHashJoiner extends ByLeftHashJoin[A, B, (A, B), Int]
+  object ByLeftHashJoiner extends ByLeftHashJoin
 
-  object ByRightHashJoiner extends ByRightHashJoin[A, B, (A, B), Int]
+  object ByRightHashJoiner extends ByRightHashJoin
 
-  object ParallelNestedLoopJoiner extends ParallelNestedLoopJoin[A, B]
+  object ParallelNestedLoopJoiner extends ParallelNestedLoopJoin
 
   "Join result for collections with same ids " should "return all collections elemens" in {
     val as = List(A("1", "avalue1"), A("2", "avalue2.1"), A("2", "avalue2.2"), A("3", "avalue3"))
