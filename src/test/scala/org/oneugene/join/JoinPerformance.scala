@@ -9,6 +9,17 @@ class JoinPerformance extends FlatSpec with Matchers with OptionValues with Prop
   case class ClassA(id: Int, value: String)
   case class ClassB(id: Int, value: String)
 
+  implicit object AKey extends HashJoinKey[ClassA, Int] {
+    override def apply(a: ClassA): Int = a.id
+  }
+  implicit object BKey extends HashJoinKey[ClassB, Int] {
+    override def apply(b: ClassB): Int = b.id
+  }
+  implicit object ABPredicate extends JoinPredicate[ClassA, ClassB] {
+    override def apply(l: ClassA, r: ClassB): Boolean = l.id == r.id
+  }
+  implicit object ABInnerJoinCombinator extends TupleInnerJoinCombinator[ClassA, ClassB]
+
   object NestedLoopJoiner extends RegularNestedLoopJoin[ClassA, ClassB]
 
   object ByLeftHashJoiner extends ByLeftHashJoin[ClassA, ClassB, (ClassA, ClassB), Int]
