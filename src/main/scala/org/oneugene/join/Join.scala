@@ -1,8 +1,9 @@
 package org.oneugene.join
 
 import scala.collection.immutable.Vector
-import scala.collection.{Traversable, mutable}
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Traversable, mutable}
+import scala.language.implicitConversions
 
 /**
   * A function which compares 2 items from different collections when running nested loop join operation with [[org.oneugene.join.NestedLoopJoin]]
