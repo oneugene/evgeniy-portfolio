@@ -1,7 +1,5 @@
 package org.oneugene.join
 
-import scala.Vector
-
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import org.scalatest.OptionValues
@@ -13,28 +11,37 @@ import org.scalatest.prop.PropertyChecks
 class JoinSamples extends FlatSpec with Matchers with OptionValues with PropertyChecks {
 
   case class ClassA(id: Int, value: String)
+
   case class ClassB(id: Int, value: String)
+
   case class ClassC(id: Int, value: String)
 
   implicit object AKey extends HashJoinKey[ClassA, Int] {
     override def apply(a: ClassA): Int = a.id
   }
+
   implicit object BKey extends HashJoinKey[ClassB, Int] {
     override def apply(b: ClassB): Int = b.id
   }
+
   implicit object ABKey extends HashJoinKey[(ClassA, ClassB), Int] {
     override def apply(ab: (ClassA, ClassB)): Int = ab._1.id
   }
+
   implicit object CKey extends HashJoinKey[ClassC, Int] {
     override def apply(b: ClassC): Int = b.id
   }
+
   implicit object ABPredicate extends JoinPredicate[ClassA, ClassB] {
     override def apply(l: ClassA, r: ClassB): Boolean = l.id == r.id
   }
+
   implicit object ABCPredicate extends JoinPredicate[(ClassA, ClassB), ClassC] {
     override def apply(l: (ClassA, ClassB), r: ClassC): Boolean = l._1.id == r.id
   }
+
   implicit object ABInnerJoinCombinator extends TupleInnerJoinCombinator[ClassA, ClassB]
+
   implicit object ABCInnerJoinCombinator extends InnerJoinCombinator[(ClassA, ClassB), ClassC, (ClassA, ClassB, ClassC)] {
     override def apply(l: (ClassA, ClassB), r: ClassC): (ClassA, ClassB, ClassC) = (l._1, l._2, r)
   }
@@ -43,6 +50,7 @@ class JoinSamples extends FlatSpec with Matchers with OptionValues with Property
   implicit object NestedLoopJoiner extends RegularNestedLoopJoin[ClassA, ClassB]
 
   implicit object ByLeftHashJoiner extends ByLeftHashJoin[ClassA, ClassB, (ClassA, ClassB), Int]
+
   object ByRightHashJoiner extends ByRightHashJoin[ClassA, ClassB, (ClassA, ClassB), Int]
 
   implicit object TripleNestedLoopJoiner extends RegularNestedLoopJoin[(ClassA, ClassB), ClassC]
@@ -68,9 +76,25 @@ class JoinSamples extends FlatSpec with Matchers with OptionValues with Property
     val bs = Array(ClassB(1, "bvalue1"))
     val cs: Traversable[ClassC] = Vector(ClassC(1, "cvalue1"))
 
-    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs, { _.id == _.id }, { (_, _) })
-    val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs, { _.id }, { _.id }, { (_, _) })
-    val byRightHashResult = ByRightHashJoiner.innerJoin(as, bs, { _.id }, { _.id }, { (_, _) })
+    val nestedLoopResult = NestedLoopJoiner.innerJoin(as, bs, {
+      _.id == _.id
+    }, {
+      (_, _)
+    })
+    val byLeftHashResult = ByLeftHashJoiner.innerJoin(as, bs, {
+      _.id
+    }, {
+      _.id
+    }, {
+      (_, _)
+    })
+    val byRightHashResult = ByRightHashJoiner.innerJoin(as, bs, {
+      _.id
+    }, {
+      _.id
+    }, {
+      (_, _)
+    })
     println(nestedLoopResult)
     println(byLeftHashResult)
     println(byRightHashResult)
