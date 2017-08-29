@@ -17,5 +17,5 @@ object UserLensRepository extends LensRepository[User] {
 
   override def getLens[B](propertyName: String): Lens[User, B] = userLenses(propertyName).asInstanceOf[Lens[User, B]]
 
-  override def getSubRepository[B](propertyName: String) = subRepositories(propertyName).asInstanceOf[LensRepository[B]]
+  override def getSubRepository[B](propertyName: String): LensRepository[B] = subRepositories(propertyName).asInstanceOf[LensRepository[B]]
 }

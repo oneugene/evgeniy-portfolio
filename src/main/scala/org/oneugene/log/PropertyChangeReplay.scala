@@ -1,37 +1,33 @@
 package org.oneugene.log
 
-import org.oneugene.log.UserContainer.User
-
 import scalaz.Lens
 
 trait PropertyChangeReplay[A] {
   def replayChange[B](value: A, change: PropertyChange[B]): A
 }
 
-class PropertyChangeReplayImpl[A](rootRepo: LensRepository[A]) extends PropertyChangeReplay[A]{
+class PropertyChangeReplayImpl[A](rootRepo: LensRepository[A]) extends PropertyChangeReplay[A] {
 
   override def replayChange[B](value: A, change: PropertyChange[B]): A = {
     val lens: Lens[A, B] = createLens(change.propertyPath)
     val currentValue = lens.get(value)
     val expectedValue = change.originalValue
-    if(currentValue!=expectedValue){
+    if (currentValue != expectedValue) {
       ???
-    }else {
+    } else {
       lens.set(value, change.newValue)
     }
   }
 
   private def createLens[B](path: Seq[String]): Lens[A, B] =
-    path.reverse match {
+    path match {
       case Seq() => Lens.lensId[A].asInstanceOf[Lens[A, B]]
-      case head +: tail =>
-        val foldResult: Lens[A, _] = tail.foldLeft(rootRepo.getLens(head) -> rootRepo.getSubRepository(head))(
-          composeLens2
-        )._1
+      case init :+ last =>
+        val foldResult: Lens[A, _] = init.foldRight(rootRepo.getLens(last) -> rootRepo.getSubRepository(last))(composeLens2)._1
         foldResult.asInstanceOf[Lens[A, B]]
-      }
+    }
 
-  private def composeLens2[A1, B, C](l: (Lens[A1, B], LensRepository[B]), propertyName: String): (Lens[A1, C], LensRepository[C]) = {
+  private def composeLens2[A1, B, C](propertyName: String, l: (Lens[A1, B], LensRepository[B])): (Lens[A1, C], LensRepository[C]) = {
     l match {
       case (lens, repo) =>
         composeLens(lens, repo, propertyName)
@@ -44,7 +40,6 @@ class PropertyChangeReplayImpl[A](rootRepo: LensRepository[A]) extends PropertyC
     val subRepo = repo.getSubRepository[C](propertyName)
     (lens >=> subLens, subRepo)
   }
-
 }
 
 object UserPropertyChangeReplay extends PropertyChangeReplayImpl(UserLensRepository)
