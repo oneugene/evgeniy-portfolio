@@ -1,21 +1,22 @@
 package org.oneugene.log
 
-import scalaz.Lens
+import scalaz.{Lens, NonEmptyList, Validation}
+import scalaz.Scalaz._
 
 trait PropertyChangeReplay[A] {
-  def replayChange[B](value: A, change: PropertyChange[B]): A
+  def replayChange[B](value: A, change: PropertyChange[B]): Validation[NonEmptyList[String], A]
 }
 
 class PropertyChangeReplayImpl[A](rootRepo: LensRepository[A]) extends PropertyChangeReplay[A] {
 
-  override def replayChange[B](value: A, change: PropertyChange[B]): A = {
+  override def replayChange[B](value: A, change: PropertyChange[B]): Validation[NonEmptyList[String], A] = {
     val lens: Lens[A, B] = createLens(change.propertyPath)
     val currentValue = lens.get(value)
     val expectedValue = change.originalValue
     if (currentValue != expectedValue) {
-      ???
+      s"Original value mismatch, expected $expectedValue, but got $currentValue".failureNel
     } else {
-      lens.set(value, change.newValue)
+      lens.set(value, change.newValue).successNel
     }
   }
 
