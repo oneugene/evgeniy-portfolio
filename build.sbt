@@ -19,6 +19,6 @@ lazy val root = (project in file(".")).
     organization := "com.github.oneugene",
     version := "1.0-SNAPSHOT",
     scalaVersion := "2.12.3",
-    libraryDependencies ++= scaladeps ++ javadeps,
-    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+    libraryDependencies ++= scaladeps ++ javadeps/*,
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")*/
   )
