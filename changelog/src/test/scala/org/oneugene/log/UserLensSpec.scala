@@ -6,6 +6,7 @@ import org.oneugene.log.UserContainer._
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
+import scala.language.postfixOps
 import scalaz.Scalaz._
 import scalaz._
 
