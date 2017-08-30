@@ -15,9 +15,6 @@ val jparsec = "org.jparsec" % "jparsec" % "2.2.1"
 val junit = "junit" % "junit" % "4.11" % "test"
 val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-val scaladeps = Seq(scalatest, scalacheck, scalaz, parserCombinators, commonsLang)
-val javadeps = Seq(jparsec, junit, commonsLang, junitInterface)
-
 lazy val joinProject = (project in file("join")).
   settings(
       name := "join",
