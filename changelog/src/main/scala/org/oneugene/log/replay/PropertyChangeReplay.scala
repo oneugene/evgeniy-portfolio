@@ -33,12 +33,9 @@ class PropertyChangeReplayImpl[A](rootRepo: LensRepository[A]) extends PropertyC
   private def composeLens2[A1, B, C](propertyName: String, record: Either[String, LensReplayRecord[A1, B]]): Either[String, LensReplayRecord[A1, C]] = {
     for {
       current <- record
-      subRepoEither = Either.cond(current.subRepo.isDefined, current.subRepo.get, s"Unknown property name $propertyName")
+      subRepoEither = Either.cond(current.subRepo.isDefined, current.subRepo.get, s"Unknown property name: $propertyName")
       subRepo <- subRepoEither
       next <- subRepo.resolve[C](propertyName)
     } yield LensReplayRecord(current.lens >=> next.lens, next.subRepo)
   }
 }
-
-object UserPropertyChangeReplay extends PropertyChangeReplayImpl(UserLensRepository)
-
