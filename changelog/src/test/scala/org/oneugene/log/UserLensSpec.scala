@@ -3,21 +3,21 @@ package org.oneugene.log
 import java.time.Month
 
 import org.oneugene.log.model.BDateChangeLogLenses._
-import org.oneugene.log.model.{BDate, BDateDay, User}
 import org.oneugene.log.model.UserChangeLogLenses._
+import org.oneugene.log.model.{BDate, BDateDay, User}
+import org.oneugene.log.play.PropertyChangeLens
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
 import scala.language.postfixOps
 import scalaz.Scalaz._
-import scalaz._
 
 class UserLensSpec extends FlatSpec with Matchers with
   OptionValues with PropertyChecks {
 
   val sampleBirthDate = BDate(1978, Month.OCTOBER, 3)
   val sampleUser = User("Ievgenii", sampleBirthDate)
-  val userBirthdayHistory: LensFamily[User, Writer[Vector[String], User], BDateDay, Writer[Vector[String], BDateDay]] = dayLens <=< birthDateLens
+  val userBirthdayHistory: PropertyChangeLens[User, BDateDay] = dayLens <=< birthDateLens
 
   "Birth Date Lenses" should "conform \"if I get, then set it back, nothing changes\" law" in {
     val (history, modified) = dayLens.set(sampleBirthDate, dayLens.get(sampleBirthDate).set(Vector.empty)) run

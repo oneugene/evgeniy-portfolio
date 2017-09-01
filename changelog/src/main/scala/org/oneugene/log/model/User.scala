@@ -1,5 +1,6 @@
 package org.oneugene.log.model
 
+import org.oneugene.log.play.PropertyChangeLens
 import org.oneugene.log.replay.{LensReplayRecord, LensRepository, PropertyChangeReplayImpl}
 
 import scalaz.{Lens, LensFamily, Writer}
@@ -7,6 +8,7 @@ import scalaz.{Lens, LensFamily, Writer}
 case class User(name: String, birthDate: BDate)
 
 object UserChangeLogLenses {
+
   import scalaz.Scalaz._
 
   private def setBirthDate(user: User, birthDateLog: Writer[Vector[String], BDate]): Writer[Vector[String], User] =
@@ -15,9 +17,9 @@ object UserChangeLogLenses {
   private def setName(user: User, nameLog: Writer[Vector[String], String]): Writer[Vector[String], User] =
     nameLog.flatMap(name => if (user.name == name) user.set(Vector.empty) else user.copy(name = name).set(Vector("name")))
 
-  val birthDateLens: LensFamily[User, Writer[Vector[String], User], BDate, Writer[Vector[String], BDate]] = LensFamily.lensFamilyu(setBirthDate, _.birthDate)
+  val birthDateLens: PropertyChangeLens[User, BDate] = LensFamily.lensFamilyu(setBirthDate, _.birthDate)
 
-  val nameLens: LensFamily[User, Writer[Vector[String], User], String, Writer[Vector[String], String]] = LensFamily.lensFamilyu(setName, _.name)
+  val nameLens: PropertyChangeLens[User, String] = LensFamily.lensFamilyu(setName, _.name)
 }
 
 

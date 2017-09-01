@@ -2,6 +2,7 @@ package org.oneugene.log.model
 
 import java.time.Month
 
+import org.oneugene.log.play.PropertyChangeLens
 import org.oneugene.log.replay.{LensReplayRecord, LensRepository}
 
 import scalaz.{Lens, LensFamily, Writer}
@@ -9,7 +10,9 @@ import scalaz.{Lens, LensFamily, Writer}
 case class BDate(year: BDateYear, month: Month, day: BDateDay)
 
 object BDateChangeLogLenses {
+
   import scalaz.Scalaz._
+
   private def setDay(date: BDate, dayChangelog: Writer[Vector[String], BDateDay]): Writer[Vector[String], BDate] =
     dayChangelog.flatMap(day => if (date.day == day) date.set(Vector.empty) else date.copy(day = day).set(Vector("day")))
 
@@ -19,13 +22,13 @@ object BDateChangeLogLenses {
   private def setMonth(date: BDate, monthChangelog: Writer[Vector[String], Month]): Writer[Vector[String], BDate] =
     monthChangelog.flatMap(month => if (date.month == month) date.set(Vector.empty) else date.copy(month = month).set(Vector("month")))
 
-  val dayLens: LensFamily[BDate, Writer[Vector[String], BDate], BDateDay, Writer[Vector[String], BDateDay]] = LensFamily.lensFamilyu(
+  val dayLens: PropertyChangeLens[BDate, BDateDay] = LensFamily.lensFamilyu(
     setDay, _.day)
 
-  val yearLens: LensFamily[BDate, Writer[Vector[String], BDate], BDateYear, Writer[Vector[String], BDateYear]] = LensFamily.lensFamilyu(
+  val yearLens: PropertyChangeLens[BDate, BDateYear] = LensFamily.lensFamilyu(
     setYear, _.year)
 
-  val monthLens: LensFamily[BDate, Writer[Vector[String], BDate], Month, Writer[Vector[String], Month]] = LensFamily.lensFamilyu(
+  val monthLens: PropertyChangeLens[BDate, Month] = LensFamily.lensFamilyu(
     setMonth, _.month)
 }
 
