@@ -4,7 +4,7 @@ import org.oneugene.log.PropertyChange
 
 import scalaz.{LensFamily, Writer}
 
-final class ObjectChangeLensConv[S, A](val self: PropertyChangeLens[S, A]) extends AnyVal {
+final class ObjectChangeLensConversions[S, A](val self: PropertyChangeLens[S, A]) extends AnyVal {
 
   import scalaz.Scalaz._
 
@@ -15,10 +15,19 @@ final class ObjectChangeLensConv[S, A](val self: PropertyChangeLens[S, A]) exten
       ObjectChangeRecord(modifiedObject, PropertyChange(path, valueToSet, self.get(sourceObject)))
     }, self.get)
   }
+
+  def objectChangelogLens: ObjectChangelogLens[S, A] = {
+    LensFamily.lensFamilyu[ObjectChangelog[S], ObjectChangelog[S], A, A]((state, valueToSet) => {
+      val sourceObject = state.currentValue
+      val changeWitPath: Writer[Vector[String], S] = self.set(sourceObject, valueToSet.set(Vector.empty))
+      val (path, modifiedObject) = changeWitPath.run
+      ObjectChangelog(modifiedObject, state.changeLog :+ PropertyChange(path, valueToSet, self.get(sourceObject)))
+    }, (state) => self.get(state.currentValue))
+  }
 }
 
 trait ToObjectChangeLens {
-  implicit def ToObjectChangeLens[S, A](a: PropertyChangeLens[S, A]): ObjectChangeLensConv[S, A] = new ObjectChangeLensConv(a)
+  implicit def ToObjectChangeLens[S, A](a: PropertyChangeLens[S, A]): ObjectChangeLensConversions[S, A] = new ObjectChangeLensConversions(a)
 }
 
 object ObjectChangeLens extends ToObjectChangeLens

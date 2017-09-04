@@ -5,15 +5,15 @@ import java.time.Month
 import org.oneugene.log.model._
 import org.scalatest.{FlatSpec, Matchers}
 
-class ModifyAndLogChangeTest extends FlatSpec with Matchers {
+class MutableChangeLogTest extends FlatSpec with Matchers {
 
   import org.oneugene.log.play.ObjectChangeLens._
 
-  private def loadUser(id: Long): ModifyAndLogChange[User] = new ModifyAndLogChange[User] {
+  private def loadUser(id: Long): MutableChangeLog[User] = new MutableChangeLog[User] {
     override protected var state: User = User("Ievgenii", BDate(1978, Month.OCTOBER, 3))
   }
 
-  "Modification" should "write to change log" in {
+  it should "show how mutable changelog works" in {
     val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens
     val change = loadUser(1)
       .recordChange(UserChangeLogLenses.nameLens.objectChangeLens.set(_, "Test"))

@@ -4,7 +4,7 @@ import org.oneugene.log.PropertyChange
 
 import scala.collection.mutable.ArrayBuffer
 
-trait ModifyAndLogChange[A] {
+trait MutableChangeLog[A] {
   private val changeLog = ArrayBuffer[PropertyChange[_]]()
   protected var state: A
 
