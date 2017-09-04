@@ -75,9 +75,6 @@ class ObjectChangeLogTest extends FlatSpec with Matchers {
     val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens
     val user = User("Ievgenii", BDate(1978, Month.OCTOBER, 3))
 
-    val nameChange: (ObjectChangelog[User]) => ObjectChangelog[User] = UserChangeLogLenses.nameLens.objectChangelogLens.set(_, "Test")
-    val birthDayChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthDayLens.objectChangelogLens.set(_, 31)
-
     val modification: ObjectChangelog[User] = ObjectChangelog.empty(user)
       .appendChange(UserChangeLogLenses.nameLens.objectChangeLens.set(_, "Test"))
       .appendChange(birthDayLens.objectChangeLens.set(_, 31))

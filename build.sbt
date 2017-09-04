@@ -15,6 +15,8 @@ val jparsec = "org.jparsec" % "jparsec" % "2.2.1"
 val junit = "junit" % "junit" % "4.11" % "test"
 val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
+val jmh = "org.openjdk.jmh" % "jmh-core" % "1.19"
+
 lazy val joinProject = (project in file("join")).
   settings(
       name := "join",
@@ -24,13 +26,13 @@ lazy val joinProject = (project in file("join")).
       libraryDependencies ++= Seq(scalatest, scalacheck)
   )
 
-lazy val changelogProject = (project in file("changelog")).
-  settings(
+lazy val changelogProject = (project in file("changelog"))
+  .settings(
     name := "changelog",
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(scalatest, scalacheck, scalaz)
+    libraryDependencies ++= Seq(scalatest, jmh, scalacheck, scalaz)
   )
 
 lazy val parsersProject = (project in file("parser")).
@@ -42,3 +44,13 @@ lazy val parsersProject = (project in file("parser")).
     libraryDependencies ++= Seq(scalatest, scalacheck, parserCombinators, commonsLang, jparsec, junit, commonsLang, junitInterface)/*,
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")*/
   )
+
+lazy val performanceTests = (project in file("jmhtests"))
+  .enablePlugins(JmhPlugin)
+  .settings(
+    name := "performanceTests",
+    organization := rootGroup,
+    version := projectVersion,
+    scalaVersion := scalaVertion,
+    libraryDependencies ++= Seq(jmh)
+  ).dependsOn(changelogProject)
