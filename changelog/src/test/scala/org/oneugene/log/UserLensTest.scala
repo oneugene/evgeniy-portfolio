@@ -12,7 +12,7 @@ import org.scalatest.{FlatSpec, Matchers, OptionValues}
 import scala.language.postfixOps
 import scalaz.Scalaz._
 
-class UserLensSpec extends FlatSpec with Matchers with
+class UserLensTest extends FlatSpec with Matchers with
   OptionValues with PropertyChecks {
 
   val sampleBirthDate = BDate(1978, Month.OCTOBER, 3)

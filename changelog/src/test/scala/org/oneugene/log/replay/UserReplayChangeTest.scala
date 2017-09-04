@@ -6,7 +6,7 @@ import org.oneugene.log.PropertyChange
 import org.oneugene.log.model.{BDate, User, UserPropertyChangeReplay}
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
-class UserReplayChangeSpec extends FlatSpec with Matchers with OptionValues {
+class UserReplayChangeTest extends FlatSpec with Matchers with OptionValues {
   val sut: PropertyChangeReplay[User] = UserPropertyChangeReplay
   val sampleBirthDate = BDate(1978, Month.OCTOBER, 3)
   val sampleUser1 = User("Ievgenii1", sampleBirthDate)
