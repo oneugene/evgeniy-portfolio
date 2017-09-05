@@ -4,8 +4,18 @@ import org.oneugene.log.PropertyChange
 
 import scala.collection.mutable.ArrayBuffer
 
+/**
+  * A trait which can collect changes to the object in mutable way
+  * @tparam A
+  */
 trait MutableChangeLog[A] {
+  /**
+    * Contains changes to properties of the object
+    */
   private val changeLog = ArrayBuffer[PropertyChange[_]]()
+  /**
+    * Current state of the object
+    */
   protected var state: A
 
   def recordChange(f: (A => ObjectChangeRecord[A, _])): this.type = {

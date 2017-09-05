@@ -9,6 +9,10 @@ import scalaz.{Lens, LensFamily, Writer}
 
 case class BDate(year: BDateYear, month: Month, day: BDateDay)
 
+/**
+  * Contains lenses for User case class.
+  * This code could be generated if needed.
+  */
 object BDateChangeLogLenses {
 
   import scalaz.Scalaz._

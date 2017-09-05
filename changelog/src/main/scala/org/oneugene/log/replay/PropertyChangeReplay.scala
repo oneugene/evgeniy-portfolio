@@ -5,6 +5,13 @@ import org.oneugene.log.PropertyChange
 import scalaz.Lens
 
 trait PropertyChangeReplay[A] {
+  /**
+    * Replays a change on the object instance
+    * @param value object value to replay changes for
+    * @param change change description to replay
+    * @tparam B type of property the change is focused to
+    * @return modified object or an error string if replay failed
+    */
   def replayChange[B](value: A, change: PropertyChange[B]): Either[String, A]
 }
 

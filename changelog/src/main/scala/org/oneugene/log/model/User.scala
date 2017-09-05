@@ -7,6 +7,10 @@ import scalaz.{Lens, LensFamily, Writer}
 
 case class User(name: String, birthDate: BDate)
 
+/**
+  * Contains lenses for User case class.
+  * This code could be generated if needed.
+  */
 object UserChangeLogLenses {
 
   import scalaz.Scalaz._
