@@ -20,9 +20,10 @@ trait MutableChangeLog[A] {
 
   def recordChange(f: (A => ObjectChangeRecord[A, _])): this.type = {
     f.apply(state) match {
-      case ObjectChangeRecord(changedValue, changeEntry) =>
+      case PropertyChangeRecord(changedValue, changeEntry) =>
         changeLog += changeEntry
         state = changedValue
+      case NoChangesRecord() =>
     }
     this
   }

@@ -5,7 +5,7 @@ import java.time.Month
 import org.oneugene.log.model.BDateChangeLogLenses._
 import org.oneugene.log.model.UserChangeLogLenses._
 import org.oneugene.log.model.{BDate, BDateDay, User}
-import org.oneugene.log.play.PropertyChangeLens
+import org.oneugene.log.play.{ObjectChangelog, PropertyChangeLens}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 

@@ -15,7 +15,11 @@ final class ObjectChangeLensConversions[S, A](val self: PropertyChangeLens[S, A]
     LensFamily.lensFamilyu[S, ObjectChangeRecord[S, A], A, A]((sourceObject, valueToSet) => {
       val changeWitPath: Writer[Vector[String], S] = self.set(sourceObject, valueToSet.set(Vector.empty))
       val (path, modifiedObject) = changeWitPath.run
-      ObjectChangeRecord(modifiedObject, PropertyChange(path, valueToSet, self.get(sourceObject)))
+      if (isIdentityChange(path, sourceObject, modifiedObject)) {
+        NoChangesRecord()
+      } else {
+        PropertyChangeRecord(modifiedObject, PropertyChange(path, valueToSet, self.get(sourceObject)))
+      }
     }, self.get)
   }
 
@@ -27,9 +31,16 @@ final class ObjectChangeLensConversions[S, A](val self: PropertyChangeLens[S, A]
       val sourceObject = state.currentValue
       val changeWitPath: Writer[Vector[String], S] = self.set(sourceObject, valueToSet.set(Vector.empty))
       val (path, modifiedObject) = changeWitPath.run
-      ObjectChangelog(modifiedObject, state.changeLog :+ PropertyChange(path, valueToSet, self.get(sourceObject)))
+      if (isIdentityChange(path, sourceObject, modifiedObject)) {
+        state
+      } else {
+        ObjectChangelog(modifiedObject, state.changeLog :+ PropertyChange(path, valueToSet, self.get(sourceObject)))
+      }
     }, (state) => self.get(state.currentValue))
   }
+
+  @inline private def isIdentityChange[A](path: Vector[String], originalObject: A, modifiedObject: A): Boolean =
+    path.isEmpty && originalObject == modifiedObject
 }
 
 trait ToObjectChangeLens {

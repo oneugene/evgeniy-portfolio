@@ -2,6 +2,7 @@ package org.oneugene.log.play
 
 import org.oneugene.log.PropertyChange
 
+sealed trait ObjectChangeRecord[+A, +B]
 /**
   * Represents single change to the object
   *
@@ -10,4 +11,6 @@ import org.oneugene.log.PropertyChange
   * @tparam A type of the object the change has been recorded for
   * @tparam B type of the property which has been changed
   */
-case class ObjectChangeRecord[+A, +B](changedValue: A, change: PropertyChange[B])
+final case class PropertyChangeRecord[+A, +B](changedValue: A, change: PropertyChange[B]) extends ObjectChangeRecord[A, B]
+
+final case class NoChangesRecord() extends ObjectChangeRecord[Nothing, Nothing]
