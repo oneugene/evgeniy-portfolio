@@ -44,5 +44,8 @@ I implemented an idea for such mirroring using Van Laarhoven lenses.
 
 ### Performance Tests Project
 
-Just contains [JMH]http://openjdk.java.net/projects/code-tools/jmh/ benchmarks for other projects
-
+Just contains [JMH]http://openjdk.java.net/projects/code-tools/jmh/ benchmarks for other projects.
+Performance tests could be run from sbt shell with following command;
+```
+jmh:run -i 20 -wi 20 -f1 -t1
+```
