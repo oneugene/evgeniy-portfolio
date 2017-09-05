@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringEscapeUtils
 trait SearchStringParsers extends JavaTokenParsers {
   /**
     *
-    * @return parser whihc can convert string into AST like tree represented by [[Predicate]]
+    * @return parser which can convert string into AST like tree represented by [[Predicate]]
     */
   def expression: Parser[Predicate]
 }
