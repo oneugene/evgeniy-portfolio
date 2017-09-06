@@ -50,7 +50,7 @@ object ScalaSearchStringParser extends SearchStringParsers {
 
   val allPredicateParsers: Parser[Predicate] = valueOpParsers | notParser
 
-  def allPredicateParsers2 = allPredicateParsers | ("(" ~> allPredicateParsers <~ ")")
+  def allPredicateParsers2: Parser[Predicate] = allPredicateParsers | ("(" ~> allPredicateParsers <~ ")")
 
 
   private val factor: Parser[Predicate] = allPredicateParsers2 | "(" ~> expression <~ ")"

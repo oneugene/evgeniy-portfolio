@@ -52,5 +52,6 @@ lazy val performanceTests = (project in file("jmhtests"))
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(jmh)
-  ).dependsOn(changelogProject)
+    libraryDependencies ++= Seq(jmh))
+  .dependsOn(changelogProject)
+  .dependsOn(parsersProject)

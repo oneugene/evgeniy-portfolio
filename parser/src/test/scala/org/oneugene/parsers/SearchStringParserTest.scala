@@ -1,16 +1,15 @@
 package org.oneugene.parsers
 
-import scala.util.parsing.input.CharSequenceReader
+import org.oneugene.parsers.ScalaSearchStringParser._
 import org.scalacheck.Gen
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import org.scalatest.OptionValues
 import org.scalatest.prop.PropertyChecks
-import ScalaSearchStringParser._
+import org.scalatest.{FlatSpec, Matchers, OptionValues}
+
+import scala.util.parsing.input.CharSequenceReader
 
 class SearchStringParserTest extends FlatSpec with Matchers with PropertyChecks with OptionValues {
 
-  val attrNameGen = for {
+  val attrNameGen: Gen[String] = for {
     root <- Gen.alphaStr.filter { x => x.length() > 0 }
     rootTail <- Gen.alphaNumChar
   } yield root + rootTail
@@ -223,20 +222,5 @@ a = "1" OR b="2" AND c="3"
         }
       case f => fail(f.toString)
     }
-  }
-  "Performance" should "be measured" in {
-    val query =
-      """
-                  q = "1" AND c<="2" OR r>="3" AND u BETWEEN ("4", "5") AND (qwe <> "tryrty" OR l45 <= "asd")
-      """
-    val iters = 1000000
-    val input = new CharSequenceReader(query)
-    val start = System.currentTimeMillis()
-    for (i <- 1 to iters) {
-      val res = ScalaSearchStringParser.expression(input)
-      //      println(res)
-    }
-    val end = System.currentTimeMillis()
-    println(s"$iters took ${end - start} ms, ${1.0 * iters / (end - start)} per ms")
   }
 }
