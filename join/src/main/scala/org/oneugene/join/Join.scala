@@ -255,7 +255,7 @@ trait RegularNestedLoopJoin extends NestedLoopJoin {
     //      if(jp(l, r))
     //    }yield c(l, r)
 
-    //    left.flatMap { l => 
+    //    left.flatMap { l =>
     //      right.withFilter{jp(l, _)}.map { c(l, _) }
     //    }
   }

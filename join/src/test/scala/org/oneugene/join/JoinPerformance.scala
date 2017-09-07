@@ -31,7 +31,7 @@ class JoinPerformance extends FlatSpec with Matchers with OptionValues with Prop
 
   object ByRightHashJoiner extends ByRightHashJoin
 
-  it should "measure performance" in {
+  ignore should "measure performance" in {
     val iters = 2
     val aCount = 10000
     val bCount = 100000

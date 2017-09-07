@@ -17,7 +17,7 @@ public final class ValueOpPredicate implements Predicate {
     public ValueOpPredicate(Builder builder) {
         this.operation = builder.operation;
         this.attribute = builder.attribute;
-        this.values = builder.values == null ? Collections.<String>emptyList() : new ArrayList<String>(builder.values);
+        this.values = builder.values == null ? Collections.<String>emptyList() : new ArrayList<>(builder.values);
     }
 
     /**

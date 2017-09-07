@@ -55,7 +55,6 @@ object ScalaSearchStringParser extends SearchStringParsers {
 
   private val factor: Parser[Predicate] = allPredicateParsers2 | "(" ~> expression <~ ")"
 
-  /**/
   private val and: Parser[Predicate] = factor ~ rep("AND" ~ factor) ^^ {
     case first ~ theRest =>
       theRest.foldLeft(first) { (acc, cur) =>

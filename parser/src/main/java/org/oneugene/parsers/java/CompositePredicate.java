@@ -14,7 +14,7 @@ public final class CompositePredicate implements Predicate {
 
     public CompositePredicate(Builder builder) {
         this.operation = builder.operation;
-        this.children = builder.children == null ? Collections.<Predicate>emptyList() : new ArrayList<Predicate>(builder.children);
+        this.children = builder.children == null ? Collections.<Predicate>emptyList() : new ArrayList<>(builder.children);
     }
 
     /**
