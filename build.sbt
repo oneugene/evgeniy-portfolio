@@ -17,6 +17,10 @@ val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
 val jmh = "org.openjdk.jmh" % "jmh-core" % "1.19"
 
+lazy val akkaVersion = "2.5.3"
+
+val akkaActor ="com.typesafe.akka" %% "akka-actor" % akkaVersion
+
 lazy val joinProject = (project in file("join")).
   settings(
       name := "join",
@@ -32,7 +36,7 @@ lazy val changelogProject = (project in file("changelog"))
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(scalatest, jmh, scalacheck, scalaz)
+    libraryDependencies ++= Seq(scalatest, jmh, scalacheck, scalaz, akkaActor)
   )
 
 lazy val parsersProject = (project in file("parser")).
