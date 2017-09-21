@@ -3,11 +3,10 @@ package org.oneugene.log.model
 import java.time.Month
 
 import cats.data.Writer
-import monocle.PLens
+import monocle.macros.GenLens
+import monocle.{Lens, PLens}
 import org.oneugene.log.play.PropertyChangeLens
 import org.oneugene.log.replay.{LensReplayRecord, LensRepository}
-
-import scalaz.Lens
 
 case class BDate(year: BDateYear, month: Month, day: BDateDay)
 
@@ -34,9 +33,9 @@ object BDateChangeLogLenses {
 }
 
 private[model] object BDateLensRepository extends LensRepository[BDate] {
-  private val dayLens: Lens[BDate, _] = Lens.lensu[BDate, BDateDay]((date, day) => date.copy(day = day), _.day)
-  private val yearLens: Lens[BDate, _] = Lens.lensu[BDate, BDateYear]((date, year) => date.copy(year = year), _.year)
-  private val monthLens: Lens[BDate, _] = Lens.lensu[BDate, Month]((date, month) => date.copy(month = month), _.month)
+  private val dayLens: Lens[BDate, _] = GenLens[BDate](_.day)
+  private val yearLens: Lens[BDate, _] = GenLens[BDate](_.year)
+  private val monthLens: Lens[BDate, _] = GenLens[BDate](_.month)
   private val bDateLenses: Map[String, Lens[BDate, _]] = Map[String, Lens[BDate, _]](
     "day" -> dayLens,
     "year" -> yearLens,

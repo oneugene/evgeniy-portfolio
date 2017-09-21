@@ -35,8 +35,8 @@ class ObjectChangeLogTest extends FlatSpec with Matchers {
   }
 
   it should "show how to record immutable changes using State monad" in {
-    import scalaz.State
-    import State._
+    import cats.data.State
+    import State.{get, modify}
 
     val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.dayLens
     val user = User("Ievgenii", BDate(1978, Month.OCTOBER, 3))
@@ -44,12 +44,12 @@ class ObjectChangeLogTest extends FlatSpec with Matchers {
     val nameChange: (ObjectChangelog[User]) => ObjectChangelog[User] = UserChangeLogLenses.nameLens.objectChangelogLens.set("Test")
     val birthDayChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthDayLens.objectChangelogLens.set(31)
     val program: State[ObjectChangelog[User], Unit] = for {
-      _ <- init
+      _ <- get
       _ <- modify(nameChange)
       _ <- modify(birthDayChange)
     } yield ()
 
-    val modification = program.exec(ObjectChangelog.empty(user))
+    val modification = program.runS(ObjectChangelog.empty(user)).value
 
     modification match {
       case ObjectChangelog(modifiedUser, changelog) =>

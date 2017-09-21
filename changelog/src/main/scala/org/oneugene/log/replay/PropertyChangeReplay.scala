@@ -1,8 +1,7 @@
 package org.oneugene.log.replay
 
+import monocle.Lens
 import org.oneugene.log.PropertyChange
-
-import scalaz.Lens
 
 trait PropertyChangeReplay[A] {
   /**
@@ -25,14 +24,14 @@ class PropertyChangeReplayImpl[A](rootRepo: LensRepository[A]) extends PropertyC
       if (currentValue != expectedValue) {
         Left(s"Original value mismatch, expected $expectedValue, but got $currentValue")
       } else {
-        Right(lens.set(value, change.newValue))
+        Right(lens.set(change.newValue)(value))
       }
     })
   }
 
   private def createLens[B](path: Seq[String]): Either[String, Lens[A, B]] =
     path match {
-      case Seq() => Right(Lens.lensId[A].asInstanceOf[Lens[A, B]])
+      case Seq() => Right(Lens.id[A].asInstanceOf[Lens[A, B]])
       case init :+ last =>
         val foldResult = init.foldRight(rootRepo.resolve(last))(composeLens2)
         foldResult.map(_.lens.asInstanceOf[Lens[A, B]])
@@ -44,6 +43,6 @@ class PropertyChangeReplayImpl[A](rootRepo: LensRepository[A]) extends PropertyC
       subRepoEither = Either.cond(current.subRepo.isDefined, current.subRepo.get, s"Unknown property name: $propertyName")
       subRepo <- subRepoEither
       next <- subRepo.resolve[C](propertyName)
-    } yield LensReplayRecord(current.lens >=> next.lens, next.subRepo)
+    } yield LensReplayRecord(current.lens ^|-> next.lens, next.subRepo)
   }
 }

@@ -2,10 +2,9 @@ package org.oneugene.log.model
 
 import cats.data.Writer
 import monocle.PLens
+import monocle.macros.GenLens
 import org.oneugene.log.play.PropertyChangeLens
 import org.oneugene.log.replay.{LensReplayRecord, LensRepository, PropertyChangeReplayImpl}
-
-import scalaz.Lens
 
 case class User(name: String, birthDate: BDate)
 
@@ -32,8 +31,8 @@ object UserChangeLogLenses {
 
 private[model] object UserLensRepository extends LensRepository[User] {
   private val records = Map[String, LensReplayRecord[User, _]](
-    "name" -> LensReplayRecord(Lens.lensu[User, String]((user, name) => user.copy(name = name), _.name), Option.empty),
-    "birthDate" -> LensReplayRecord(Lens.lensu[User, BDate]((user, date) => user.copy(birthDate = date), _.birthDate), Some(BDateLensRepository))
+    "name" -> LensReplayRecord(GenLens[User](_.name), Option.empty),
+    "birthDate" -> LensReplayRecord(GenLens[User](_.birthDate), Some(BDateLensRepository))
   )
 
   override def resolve[B](propertyName: String): Either[String, LensReplayRecord[User, B]] = {
