@@ -17,9 +17,13 @@ val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
 val jmh = "org.openjdk.jmh" % "jmh-core" % "1.19"
 
-lazy val akkaVersion = "2.5.3"
-
+val akkaVersion = "2.5.3"
 val akkaActor ="com.typesafe.akka" %% "akka-actor" % akkaVersion
+
+val monocleVersion = "1.4.0"
+
+val monocleCore = "com.github.julien-truffaut" %%  "monocle-core"  % monocleVersion
+val monocleMacro = "com.github.julien-truffaut" %%  "monocle-macro" % monocleVersion
 
 lazy val joinProject = (project in file("join")).
   settings(
@@ -56,6 +60,6 @@ lazy val performanceTests = (project in file("jmhtests"))
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(jmh))
+    libraryDependencies ++= Seq(monocleCore, monocleMacro, jmh))
   .dependsOn(changelogProject)
   .dependsOn(parsersProject)
