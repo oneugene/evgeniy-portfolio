@@ -1,21 +1,19 @@
 package org.oneugene.log.play
 
+import cats.data.Writer
+import monocle.PLens
 import org.oneugene.log.PropertyChange
-
-import scalaz.Writer
 
 final class ObjectChangeLensConversions[S, A](val self: PropertyChangeLens[S, A]) extends AnyVal {
 
-  import monocle.PLens
-
-  import scalaz.Scalaz._
+  import cats.implicits.catsSyntaxWriterId
 
   /**
     * Converts PropertyChangeLens to ObjectChangeLens (terminal lens form)
     */
   def objectChangeLens: ObjectChangeLens[S, A] = {
     PLens[S, ObjectChangeRecord[S, A], A, A](self.get)((valueToSet) => (sourceObject) => {
-      val changeWitPath: Writer[Vector[String], S] = self.set(valueToSet.set(Vector.empty))(sourceObject)
+      val changeWitPath: Writer[Vector[String], S] = self.set(valueToSet.writer(Vector.empty))(sourceObject)
       val (path, modifiedObject) = changeWitPath.run
       if (isIdentityChange(path, sourceObject, modifiedObject)) {
         NoChangesRecord()
@@ -31,7 +29,7 @@ final class ObjectChangeLensConversions[S, A](val self: PropertyChangeLens[S, A]
   def objectChangelogLens: ObjectChangelogLens[S, A] = {
     PLens[ObjectChangelog[S], ObjectChangelog[S], A, A]((state) => self.get(state.currentValue))((valueToSet) => (state) => {
       val sourceObject = state.currentValue
-      val changeWitPath: Writer[Vector[String], S] = self.set(valueToSet.set(Vector.empty))(sourceObject)
+      val changeWitPath: Writer[Vector[String], S] = self.set(valueToSet.writer(Vector.empty))(sourceObject)
       val (path, modifiedObject) = changeWitPath.run
       if (isIdentityChange(path, sourceObject, modifiedObject)) {
         state

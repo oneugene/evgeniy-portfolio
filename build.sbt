@@ -21,9 +21,10 @@ val akkaVersion = "2.5.3"
 val akkaActor ="com.typesafe.akka" %% "akka-actor" % akkaVersion
 
 val monocleVersion = "1.4.0"
-
 val monocleCore = "com.github.julien-truffaut" %%  "monocle-core"  % monocleVersion
 val monocleMacro = "com.github.julien-truffaut" %%  "monocle-macro" % monocleVersion
+
+val cats = "org.typelevel" %% "cats-core" % "1.0.0-MF"
 
 lazy val joinProject = (project in file("join")).
   settings(
@@ -40,7 +41,7 @@ lazy val changelogProject = (project in file("changelog"))
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(scalatest, scalacheck, scalaz, akkaActor, monocleCore, monocleMacro)
+    libraryDependencies ++= Seq(scalatest, scalacheck, scalaz, cats, akkaActor, monocleCore, monocleMacro)
   )
 
 lazy val parsersProject = (project in file("parser")).

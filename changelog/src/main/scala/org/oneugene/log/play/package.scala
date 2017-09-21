@@ -1,8 +1,7 @@
 package org.oneugene.log
 
+import cats.data.Writer
 import monocle.PLens
-
-import scalaz.Writer
 
 package object play {
   /**

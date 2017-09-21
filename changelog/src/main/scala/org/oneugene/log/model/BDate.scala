@@ -2,10 +2,12 @@ package org.oneugene.log.model
 
 import java.time.Month
 
+import cats.data.Writer
+import monocle.PLens
 import org.oneugene.log.play.PropertyChangeLens
 import org.oneugene.log.replay.{LensReplayRecord, LensRepository}
 
-import scalaz.{Lens, Writer}
+import scalaz.Lens
 
 case class BDate(year: BDateYear, month: Month, day: BDateDay)
 
@@ -15,18 +17,16 @@ case class BDate(year: BDateYear, month: Month, day: BDateDay)
   */
 object BDateChangeLogLenses {
 
-  import monocle.PLens
-
-  import scalaz.Scalaz._
+  import cats.implicits.{catsKernelStdMonoidForVector, catsSyntaxWriterId}
 
   private val setDay: Writer[Vector[String], BDateDay] => BDate => Writer[Vector[String], BDate] = (dayChangelog) => (date) =>
-    dayChangelog.flatMap(day => if (date.day == day) date.set(Vector.empty) else date.copy(day = day).set(Vector("day")))
+    dayChangelog.flatMap(day => if (date.day == day) date.writer(Vector.empty) else date.copy(day = day).writer(Vector("day")))
 
   private val setYear: Writer[Vector[String], BDateYear] => BDate => Writer[Vector[String], BDate] = (yearChangelog) => (date) =>
-    yearChangelog.flatMap(year => if (date.year == year) date.set(Vector.empty) else date.copy(year = year).set(Vector("year")))
+    yearChangelog.flatMap(year => if (date.year == year) date.writer(Vector.empty) else date.copy(year = year).writer(Vector("year")))
 
   private val setMonth: Writer[Vector[String], Month] => BDate => Writer[Vector[String], BDate] = (monthChangelog) => (date) =>
-    monthChangelog.flatMap(month => if (date.month == month) date.set(Vector.empty) else date.copy(month = month).set(Vector("month")))
+    monthChangelog.flatMap(month => if (date.month == month) date.writer(Vector.empty) else date.copy(month = month).writer(Vector("month")))
 
   val dayLens: PropertyChangeLens[BDate, BDateDay] = PLens[BDate, Writer[Vector[String], BDate], BDateDay, Writer[Vector[String], BDateDay]](_.day)(setDay)
   val yearLens: PropertyChangeLens[BDate, BDateYear] = PLens[BDate, Writer[Vector[String], BDate], BDateYear, Writer[Vector[String], BDateYear]](_.year)(setYear)
