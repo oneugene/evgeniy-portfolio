@@ -6,7 +6,7 @@ import org.oneugene.log.PropertyChange
   * Immutable object changelog
   *
   * @param currentValue current value of the object
-  * @param changeLog changes that were made to the object
+  * @param changeLog    changes that were made to the object
   * @tparam A
   */
 case class ObjectChangelog[A](currentValue: A, changeLog: Vector[PropertyChange[_]]) {

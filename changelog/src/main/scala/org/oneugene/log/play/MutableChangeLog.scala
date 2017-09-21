@@ -6,6 +6,7 @@ import scala.collection.mutable.ArrayBuffer
 
 /**
   * A trait which can collect changes to the object in mutable way
+  *
   * @tparam A
   */
 trait MutableChangeLog[A] {

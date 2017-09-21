@@ -15,10 +15,10 @@ class ChangelogAppendPerformanceTest {
   @Benchmark
   def runModification(testValues: TestConstants, bh: Blackhole): Unit = {
     val modification: ObjectChangelog[User] = ObjectChangelog.empty(testValues.originalUser)
-      .appendChange(nameOcLens.set(_, testValues.newName))
-      .appendChange(birthDayOcLens.set(_, testValues.newDay))
-      .appendChange(birthMonthOcLens.set(_, testValues.newMonth))
-      .appendChange(birthYearOcLens.set(_, testValues.newYear))
+      .appendChange(nameOcLens.set(testValues.newName))
+      .appendChange(birthDayOcLens.set(testValues.newDay))
+      .appendChange(birthMonthOcLens.set(testValues.newMonth))
+      .appendChange(birthYearOcLens.set(testValues.newYear))
     bh.consume(modification)
   }
 

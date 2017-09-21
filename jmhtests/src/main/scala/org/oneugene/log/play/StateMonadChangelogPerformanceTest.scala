@@ -23,10 +23,10 @@ class StateMonadChangelogPerformanceTest {
   }
 
   def constructProgram(testValues: TestConstants): State[ObjectChangelog[User], Unit] = {
-    val nameChange: (ObjectChangelog[User]) => ObjectChangelog[User] = nameClLens.set(_, testValues.newName)
-    val birthDayChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthDayClLens.set(_, testValues.newDay)
-    val birthMonthChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthMonthClLens.set(_, testValues.newMonth)
-    val birthYearChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthYearClLens.set(_, testValues.newYear)
+    val nameChange: (ObjectChangelog[User]) => ObjectChangelog[User] = nameClLens.set(testValues.newName)
+    val birthDayChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthDayClLens.set(testValues.newDay)
+    val birthMonthChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthMonthClLens.set(testValues.newMonth)
+    val birthYearChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthYearClLens.set(testValues.newYear)
     for {
       _ <- init
       _ <- modify(nameChange)

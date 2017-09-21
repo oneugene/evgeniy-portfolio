@@ -6,9 +6,9 @@ import org.oneugene.log.model._
 import org.oneugene.log.play.ObjectChangeLens._
 
 object PrebuildLenses {
-  val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens
-  val birthMonthLens: PropertyChangeLens[User, Month] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.monthLens
-  val birthYearLens: PropertyChangeLens[User, BDateYear] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.yearLens
+  val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.dayLens
+  val birthMonthLens: PropertyChangeLens[User, Month] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.monthLens
+  val birthYearLens: PropertyChangeLens[User, BDateYear] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.yearLens
 
   val nameOcLens: ObjectChangeLens[User, String] = UserChangeLogLenses.nameLens.objectChangeLens
   val birthDayOcLens: ObjectChangeLens[User, BDateDay] = birthDayLens.objectChangeLens

@@ -13,7 +13,7 @@ import scala.annotation.tailrec
   * @param repo reference to user container
   */
 class UserServiceActor(val repo: ActorRef) extends Actor {
-  val birthDayLens: ObjectChangeLens[User, BDateDay] = (UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens).objectChangeLens
+  val birthDayLens: ObjectChangeLens[User, BDateDay] = (UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.dayLens).objectChangeLens
 
   override def receive: PartialFunction[Any, Unit] = {
     case u: User =>
@@ -27,7 +27,7 @@ class UserServiceActor(val repo: ActorRef) extends Actor {
     if (day > 30) {
       u
     } else {
-      val objectChange: ObjectChangeRecord[User, BDateDay] = birthDayLens.set(u, day)
+      val objectChange: ObjectChangeRecord[User, BDateDay] = birthDayLens.set(day)(u)
       repo ! objectChange
       val newValue = objectChange match {
         case PropertyChangeRecord(changed, _) => changed

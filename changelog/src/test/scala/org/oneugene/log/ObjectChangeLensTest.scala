@@ -20,14 +20,14 @@ class ObjectChangeLensTest extends FlatSpec with Matchers with
   "Object Changelog Lenses" should "conform \"if I get, then set it back, nothing changes\" law" in {
     val changeLog = ObjectChangelog.empty(sampleUser)
     val lens = nameLens.objectChangelogLens
-    val modified = lens.set(changeLog, lens.get(changeLog))
+    val modified = lens.set(lens.get(changeLog))(changeLog)
 
     modified should be(changeLog)
   }
 
   "Object Change Lenses" should "conform \"if I get, then set it back, nothing changes\" law" in {
     val lens = nameLens.objectChangeLens
-    val modified: ObjectChangeRecord[User, String] = lens.set(sampleUser, lens.get(sampleUser))
+    val modified: ObjectChangeRecord[User, String] = lens.set(lens.get(sampleUser))(sampleUser)
 
     modified match {
       case PropertyChangeRecord(_, _) =>

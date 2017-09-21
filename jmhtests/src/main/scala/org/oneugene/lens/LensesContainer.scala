@@ -1,10 +1,10 @@
 package org.oneugene.lens
 
+import monocle.macros.GenLens
+import monocle.{Lens => MLens}
 import org.oneugene.log.model.{BDate, BDateDay, User}
 
-import scalaz.{Lens=>ZLens}
-import monocle.{Lens =>MLens}
-import monocle.macros.GenLens
+import scalaz.{Lens => ZLens}
 
 object LensesContainer {
   val nameZLens: ZLens[User, String] = ZLens.lensu[User, String]((user, name) => user.copy(name = name), _.name)

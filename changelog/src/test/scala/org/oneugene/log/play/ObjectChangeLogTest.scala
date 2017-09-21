@@ -10,14 +10,11 @@ class ObjectChangeLogTest extends FlatSpec with Matchers {
   import org.oneugene.log.play.ObjectChangeLens._
 
   it should "show how to record immutable changes using changelog lens" in {
-    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens
+    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.dayLens
     val user = User("Ievgenii", BDate(1978, Month.OCTOBER, 3))
 
-    val modification = birthDayLens.objectChangelogLens.set(
-      UserChangeLogLenses.nameLens.objectChangelogLens.set(
-        ObjectChangelog.empty(user), "Test"
-      ),
-      31
+    val modification = birthDayLens.objectChangelogLens.set(31)(
+      UserChangeLogLenses.nameLens.objectChangelogLens.set("Test")(ObjectChangelog.empty(user))
     )
 
     modification match {
@@ -41,11 +38,11 @@ class ObjectChangeLogTest extends FlatSpec with Matchers {
     import scalaz.State
     import State._
 
-    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens
+    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.dayLens
     val user = User("Ievgenii", BDate(1978, Month.OCTOBER, 3))
 
-    val nameChange: (ObjectChangelog[User]) => ObjectChangelog[User] = UserChangeLogLenses.nameLens.objectChangelogLens.set(_, "Test")
-    val birthDayChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthDayLens.objectChangelogLens.set(_, 31)
+    val nameChange: (ObjectChangelog[User]) => ObjectChangelog[User] = UserChangeLogLenses.nameLens.objectChangelogLens.set("Test")
+    val birthDayChange: (ObjectChangelog[User]) => ObjectChangelog[User] = birthDayLens.objectChangelogLens.set(31)
     val program: State[ObjectChangelog[User], Unit] = for {
       _ <- init
       _ <- modify(nameChange)
@@ -72,12 +69,12 @@ class ObjectChangeLogTest extends FlatSpec with Matchers {
   }
 
   it should "show how to record immutable changes using append change method" in {
-    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens
+    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.dayLens
     val user = User("Ievgenii", BDate(1978, Month.OCTOBER, 3))
 
     val modification: ObjectChangelog[User] = ObjectChangelog.empty(user)
-      .appendChange(UserChangeLogLenses.nameLens.objectChangeLens.set(_, "Test"))
-      .appendChange(birthDayLens.objectChangeLens.set(_, 31))
+      .appendChange(UserChangeLogLenses.nameLens.objectChangeLens.set("Test"))
+      .appendChange(birthDayLens.objectChangeLens.set(31))
 
     modification match {
       case ObjectChangelog(modifiedUser, changelog) =>

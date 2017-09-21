@@ -8,7 +8,7 @@ import org.openjdk.jmh.infra.Blackhole
 
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @BenchmarkMode(Array(Mode.AverageTime))
-class MutableChangeLogPerformanceTest {
+class MutableChangelogPerformanceTest {
 
   import PrebuildLenses._
 
@@ -20,10 +20,10 @@ class MutableChangeLogPerformanceTest {
   def runModification(testValues: TestConstants, bh: Blackhole): Unit = {
     val service = new TestClass(testValues.originalUser)
     val modification = service
-      .recordChange(nameOcLens.set(_, testValues.newName))
-      .recordChange(birthDayOcLens.set(_, testValues.newDay))
-      .recordChange(birthMonthOcLens.set(_, testValues.newMonth))
-      .recordChange(birthYearOcLens.set(_, testValues.newYear))
+      .recordChange(nameOcLens.set(testValues.newName))
+      .recordChange(birthDayOcLens.set(testValues.newDay))
+      .recordChange(birthMonthOcLens.set(testValues.newMonth))
+      .recordChange(birthYearOcLens.set(testValues.newYear))
       .run
     bh.consume(modification)
   }

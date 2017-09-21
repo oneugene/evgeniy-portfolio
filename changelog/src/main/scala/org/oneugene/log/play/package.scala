@@ -1,6 +1,8 @@
 package org.oneugene.log
 
-import scalaz.{LensFamily, Writer}
+import monocle.PLens
+
+import scalaz.Writer
 
 package object play {
   /**
@@ -12,7 +14,7 @@ package object play {
     * @tparam S type of source object
     * @tparam A type of property the lens focused to
     */
-  type PropertyChangeLens[S, A] = LensFamily[S, Writer[Vector[String], S], A, Writer[Vector[String], A]]
+  type PropertyChangeLens[S, A] = PLens[S, Writer[Vector[String], S], A, Writer[Vector[String], A]]
 
   /**
     * Shortcut type for lens which is focused on a property of the object and
@@ -24,7 +26,7 @@ package object play {
     * @tparam S type of source object
     * @tparam A type of property the lens focused to
     */
-  type ObjectChangeLens[S, A] = LensFamily[S, ObjectChangeRecord[S, A], A, A]
+  type ObjectChangeLens[S, A] = PLens[S, ObjectChangeRecord[S, A], A, A]
 
   /**
     * Shortcut type for lens which is focused on a property of the object and
@@ -37,6 +39,6 @@ package object play {
     * @tparam S type of source object
     * @tparam A type of property the lens focused to
     */
-  type ObjectChangelogLens[S, A] = LensFamily[ObjectChangelog[S], ObjectChangelog[S], A, A]
+  type ObjectChangelogLens[S, A] = PLens[ObjectChangelog[S], ObjectChangelog[S], A, A]
 
 }

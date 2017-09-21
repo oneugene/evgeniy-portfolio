@@ -5,7 +5,7 @@ import java.time.Month
 import org.oneugene.log.play.PropertyChangeLens
 import org.oneugene.log.replay.{LensReplayRecord, LensRepository}
 
-import scalaz.{Lens, LensFamily, Writer}
+import scalaz.{Lens, Writer}
 
 case class BDate(year: BDateYear, month: Month, day: BDateDay)
 
@@ -15,25 +15,22 @@ case class BDate(year: BDateYear, month: Month, day: BDateDay)
   */
 object BDateChangeLogLenses {
 
+  import monocle.PLens
+
   import scalaz.Scalaz._
 
-  private def setDay(date: BDate, dayChangelog: Writer[Vector[String], BDateDay]): Writer[Vector[String], BDate] =
+  private val setDay: Writer[Vector[String], BDateDay] => BDate => Writer[Vector[String], BDate] = (dayChangelog) => (date) =>
     dayChangelog.flatMap(day => if (date.day == day) date.set(Vector.empty) else date.copy(day = day).set(Vector("day")))
 
-  private def setYear(date: BDate, yearChangelog: Writer[Vector[String], BDateYear]): Writer[Vector[String], BDate] =
+  private val setYear: Writer[Vector[String], BDateYear] => BDate => Writer[Vector[String], BDate] = (yearChangelog) => (date) =>
     yearChangelog.flatMap(year => if (date.year == year) date.set(Vector.empty) else date.copy(year = year).set(Vector("year")))
 
-  private def setMonth(date: BDate, monthChangelog: Writer[Vector[String], Month]): Writer[Vector[String], BDate] =
+  private val setMonth: Writer[Vector[String], Month] => BDate => Writer[Vector[String], BDate] = (monthChangelog) => (date) =>
     monthChangelog.flatMap(month => if (date.month == month) date.set(Vector.empty) else date.copy(month = month).set(Vector("month")))
 
-  val dayLens: PropertyChangeLens[BDate, BDateDay] = LensFamily.lensFamilyu(
-    setDay, _.day)
-
-  val yearLens: PropertyChangeLens[BDate, BDateYear] = LensFamily.lensFamilyu(
-    setYear, _.year)
-
-  val monthLens: PropertyChangeLens[BDate, Month] = LensFamily.lensFamilyu(
-    setMonth, _.month)
+  val dayLens: PropertyChangeLens[BDate, BDateDay] = PLens[BDate, Writer[Vector[String], BDate], BDateDay, Writer[Vector[String], BDateDay]](_.day)(setDay)
+  val yearLens: PropertyChangeLens[BDate, BDateYear] = PLens[BDate, Writer[Vector[String], BDate], BDateYear, Writer[Vector[String], BDateYear]](_.year)(setYear)
+  val monthLens: PropertyChangeLens[BDate, Month] = PLens[BDate, Writer[Vector[String], BDate], Month, Writer[Vector[String], Month]](_.month)(setMonth)
 }
 
 private[model] object BDateLensRepository extends LensRepository[BDate] {

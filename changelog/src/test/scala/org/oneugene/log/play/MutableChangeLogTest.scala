@@ -14,10 +14,10 @@ class MutableChangeLogTest extends FlatSpec with Matchers {
   }
 
   it should "show how mutable changelog works" in {
-    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens >=> BDateChangeLogLenses.dayLens
+    val birthDayLens: PropertyChangeLens[User, BDateDay] = UserChangeLogLenses.birthDateLens ^|-> BDateChangeLogLenses.dayLens
     val change = loadUser(1)
-      .recordChange(UserChangeLogLenses.nameLens.objectChangeLens.set(_, "Test"))
-      .recordChange(birthDayLens.objectChangeLens.set(_, 31))
+      .recordChange(UserChangeLogLenses.nameLens.objectChangeLens.set("Test"))
+      .recordChange(birthDayLens.objectChangeLens.set(31))
     val (modifiedUser, changelog) = change.run
     println(s"Changelog test: ${change.run}")
 

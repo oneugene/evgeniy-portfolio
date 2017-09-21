@@ -40,7 +40,7 @@ lazy val changelogProject = (project in file("changelog"))
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(scalatest, jmh, scalacheck, scalaz, akkaActor)
+    libraryDependencies ++= Seq(scalatest, scalacheck, scalaz, akkaActor, monocleCore, monocleMacro)
   )
 
 lazy val parsersProject = (project in file("parser")).
@@ -60,6 +60,6 @@ lazy val performanceTests = (project in file("jmhtests"))
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(monocleCore, monocleMacro, jmh))
+    libraryDependencies ++= Seq(monocleCore, monocleMacro, scalaz, jmh))
   .dependsOn(changelogProject)
   .dependsOn(parsersProject)
