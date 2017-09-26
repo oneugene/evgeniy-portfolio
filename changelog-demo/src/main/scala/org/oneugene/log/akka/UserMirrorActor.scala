@@ -19,6 +19,8 @@ class UserMirrorActor(var user: User) extends Actor {
       UserPropertyChangeReplay.replayChange(user, p) match {
         case Right(u) => user = u
           log.info(s"Changed user to $user")
+        case Left(value) =>
+          throw new IllegalStateException(value)
       }
     case NoChangesRecord =>
   }

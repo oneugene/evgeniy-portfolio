@@ -1,3 +1,5 @@
+import sbt.CrossVersion
+
 val scalaVertion = "2.12.3"
 val projectVersion = "1.0-SNAPSHOT"
 val rootGroup = "com.github.oneugene.evgeniy-portfolio"
@@ -18,21 +20,21 @@ val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 val jmh = "org.openjdk.jmh" % "jmh-core" % "1.19"
 
 val akkaVersion = "2.5.3"
-val akkaActor ="com.typesafe.akka" %% "akka-actor" % akkaVersion
+val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
 
 val monocleVersion = "1.5.0-cats-M1"
-val monocleCore = "com.github.julien-truffaut" %%  "monocle-core"  % monocleVersion
-val monocleMacro = "com.github.julien-truffaut" %%  "monocle-macro" % monocleVersion
+val monocleCore = "com.github.julien-truffaut" %% "monocle-core" % monocleVersion
+val monocleMacro = "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion
 
 val cats = "org.typelevel" %% "cats-core" % "1.0.0-MF"
 
 lazy val joinProject = (project in file("join")).
   settings(
-      name := "join",
-      organization := rootGroup,
-      version := projectVersion,
-      scalaVersion := scalaVertion,
-      libraryDependencies ++= Seq(scalatest, scalacheck)
+    name := "join",
+    organization := rootGroup,
+    version := projectVersion,
+    scalaVersion := scalaVertion,
+    libraryDependencies ++= Seq(scalatest, scalacheck)
   )
 
 lazy val changelogProject = (project in file("changelog"))
@@ -44,13 +46,50 @@ lazy val changelogProject = (project in file("changelog"))
     libraryDependencies ++= Seq(scalatest, scalacheck, cats, akkaActor, monocleCore, monocleMacro)
   )
 
+lazy val changelogMacroProject = (project in file("changelog-macro"))
+  .settings(
+    name := "changelog-macro",
+    organization := rootGroup,
+    version := projectVersion,
+    scalaVersion := scalaVertion,
+    scalacOptions += "-language:experimental.macros",
+    libraryDependencies ++= Seq(cats, monocleCore,
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
+    ),
+    addCompilerPlugin(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full))
+  )
+  .dependsOn(changelogProject)
+
+lazy val changelogMacroTestProject = (project in file("changelog-macro-test"))
+  .settings(
+    name := "changelog-macro-test",
+    organization := rootGroup,
+    version := projectVersion,
+    scalaVersion := scalaVertion,
+    libraryDependencies ++= Seq(scalatest, scalacheck, cats, monocleCore)
+  )
+  .dependsOn(changelogProject)
+  .dependsOn(changelogMacroProject)
+
+lazy val changelogDemoProject = (project in file("changelog-demo"))
+  .settings(
+    name := "changelog-demo",
+    organization := rootGroup,
+    version := projectVersion,
+    scalaVersion := scalaVertion,
+    libraryDependencies ++= Seq(scalatest, scalacheck, cats, akkaActor, monocleCore, monocleMacro)
+  )
+  .dependsOn(changelogProject)
+  .dependsOn(changelogMacroProject)
+
 lazy val parsersProject = (project in file("parser")).
   settings(
     name := "parser",
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(scalatest, scalacheck, parserCombinators, commonsLang, jparsec, junit, commonsLang, junitInterface)/*,
+    libraryDependencies ++= Seq(scalatest, scalacheck, parserCombinators, commonsLang, jparsec, junit, commonsLang, junitInterface) /*,
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")*/
   )
 
@@ -63,4 +102,5 @@ lazy val performanceTests = (project in file("jmhtests"))
     scalaVersion := scalaVertion,
     libraryDependencies ++= Seq(monocleCore, monocleMacro, scalaz, cats, jmh))
   .dependsOn(changelogProject)
+  .dependsOn(changelogDemoProject)
   .dependsOn(parsersProject)
