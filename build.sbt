@@ -53,24 +53,13 @@ lazy val changelogMacroProject = (project in file("changelog-macro"))
     version := projectVersion,
     scalaVersion := scalaVertion,
     scalacOptions += "-language:experimental.macros",
-    libraryDependencies ++= Seq(cats, monocleCore,
+    libraryDependencies ++= Seq(scalatest, scalacheck, cats,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
     ),
     addCompilerPlugin(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full))
   )
   .dependsOn(changelogProject)
-
-lazy val changelogMacroTestProject = (project in file("changelog-macro-test"))
-  .settings(
-    name := "changelog-macro-test",
-    organization := rootGroup,
-    version := projectVersion,
-    scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(scalatest, scalacheck, cats, monocleCore)
-  )
-  .dependsOn(changelogProject)
-  .dependsOn(changelogMacroProject)
 
 lazy val changelogDemoProject = (project in file("changelog-demo"))
   .settings(
