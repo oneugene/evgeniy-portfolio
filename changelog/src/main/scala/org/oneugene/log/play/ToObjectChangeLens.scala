@@ -3,6 +3,7 @@ package org.oneugene.log.play
 import cats.data.Writer
 import monocle.PLens
 import org.oneugene.log.PropertyChange
+import scala.language.implicitConversions
 
 final class ObjectChangeLensConversions[S, A](val self: PropertyChangeLens[S, A]) extends AnyVal {
 
@@ -39,7 +40,7 @@ final class ObjectChangeLensConversions[S, A](val self: PropertyChangeLens[S, A]
     })
   }
 
-  @inline private def isIdentityChange[A](path: Vector[String], originalObject: A, modifiedObject: A): Boolean =
+  @inline private def isIdentityChange[Y](path: Vector[String], originalObject: Y, modifiedObject: Y): Boolean =
     path.isEmpty && originalObject == modifiedObject
 }
 
