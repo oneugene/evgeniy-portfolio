@@ -6,8 +6,6 @@ import org.oneugene.log.play.{NoChangesRecord, ObjectChangeRecord, ObjectChangel
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
-import scala.language.postfixOps
-
 class ObjectChangeLensTest extends FlatSpec with Matchers with
   OptionValues with PropertyChecks {
 

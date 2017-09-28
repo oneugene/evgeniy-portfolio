@@ -43,7 +43,7 @@ lazy val changelogProject = (project in file("changelog"))
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(scalatest, scalacheck, cats, akkaActor, monocleCore, monocleMacro)
+    libraryDependencies ++= Seq(scalatest, scalacheck, cats, akkaActor, monocleCore, monocleMacro % "test")
   )
 
 lazy val changelogMacroProject = (project in file("changelog-macro"))
