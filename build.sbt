@@ -93,3 +93,14 @@ lazy val performanceTests = (project in file("jmhtests"))
   .dependsOn(changelogProject)
   .dependsOn(changelogDemoProject)
   .dependsOn(parsersProject)
+
+val alpakkaXml = "com.lightbend.akka" % "akka-stream-alpakka-xml_2.12" % "0.13"
+
+lazy val streamsProject = (project in file("learnstreams"))
+.settings(
+    name := "learnstreams",
+    organization := rootGroup,
+    version := projectVersion,
+    scalaVersion := scalaVertion,
+    libraryDependencies ++= Seq(scalatest, scalacheck, alpakkaXml)
+)
