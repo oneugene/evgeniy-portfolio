@@ -10,7 +10,5 @@ class CaptureResultEventsAccumulator[A](val delegate: XmlEventsAccumulator[A]) e
     capturedResult.map(_ => ())
   }
 
-  def retrieve: ReceiveResult[A] = {
-    capturedResult
-  }
+  def retrieve: ReceiveResult[A] = capturedResult
 }

@@ -16,7 +16,7 @@ case object Incomplete extends ReceiveResult[Nothing] {
   override def flatMap[B](f: (Nothing) => ReceiveResult[B]): ReceiveResult[B] = this
 }
 
-case class Complete[+A](value: A) extends ReceiveResult[A] {
+final case class Complete[+A](value: A) extends ReceiveResult[A] {
   override def fold[U](failed: (Throwable) => U, complete: (A) => U, incomplete: => U) = complete(value)
 
   override def map[B](f: (A) => B): ReceiveResult[B] = ReceiveResult.complete(f(value))
@@ -24,7 +24,7 @@ case class Complete[+A](value: A) extends ReceiveResult[A] {
   override def flatMap[B](f: (A) => ReceiveResult[B]): ReceiveResult[B] = f(value)
 }
 
-case class Failed(ex: Throwable) extends ReceiveResult[Nothing] {
+final case class Failed(ex: Throwable) extends ReceiveResult[Nothing] {
   override def fold[U](failed: (Throwable) => U, complete: (Nothing) => U, incomplete: => U) = failed(ex)
 
   override def map[B](f: (Nothing) => B): ReceiveResult[B] = this

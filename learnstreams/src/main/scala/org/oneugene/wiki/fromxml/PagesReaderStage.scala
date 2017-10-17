@@ -15,12 +15,12 @@ class PagesReaderStage extends GraphStage[FlowShape[ParseEvent, Page]] {
       private val skipReader = new TagSkipper
       private val pageReader = new PageReader
 
-      private var eventReader: ParseEvent => Unit = outsideRootTag;
+      private var state: ParseEvent => Unit = outsideRootTag;
 
       private def outsideRootTag(event: ParseEvent): Unit = {
         event match {
           case st: StartElement =>
-            eventReader = insideRootTag
+            state = insideRootTag
           case other =>
         }
         pull(in)
@@ -29,11 +29,11 @@ class PagesReaderStage extends GraphStage[FlowShape[ParseEvent, Page]] {
       private def insideRootTag(event: ParseEvent): Unit = {
         event match {
           case st: StartElement if st.localName == "page" =>
-            eventReader = readingPageTag
+            state = readingPageTag
           case st: StartElement if st.localName != "page" =>
-            eventReader = skippingTag
+            state = skippingTag
           case en: EndElement =>
-            eventReader = outsideRootTag
+            state = outsideRootTag
           case other =>
         }
         pull(in)
@@ -41,27 +41,32 @@ class PagesReaderStage extends GraphStage[FlowShape[ParseEvent, Page]] {
 
       private def readingPageTag(event: ParseEvent): Unit = {
         val receiveResult: ReceiveResult[Page] = pageReader.receive(event)
-        receiveResult.fold(failStage, p => {
-          eventReader = insideRootTag; push(out, p)
-        }, {
-          pull(in)
-        })
+        receiveResult.fold(
+          failStage,
+          p => {
+            state = insideRootTag;
+            push(out, p)
+          },
+          pull(in))
       }
 
       private def skippingTag(event: ParseEvent): Unit = {
         val receiveResult: ReceiveResult[Unit] = skipReader.receive(event)
-        receiveResult.fold(failStage, _ => {
-          eventReader = insideRootTag; pull(in)
-        }, {
+        receiveResult.fold(
+          failStage,
+          _ => {
+            state = insideRootTag;
+            pull(in)
+          },
           pull(in)
-        })
+        )
       }
 
       override def onPull(): Unit = pull(in)
 
       override def onPush(): Unit = {
         val event: ParseEvent = grab(in)
-        eventReader(event)
+        state(event)
       }
 
       setHandlers(in, out, this)

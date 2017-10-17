@@ -10,11 +10,11 @@ class TextTagReader extends XmlEventsAccumulator[String] {
       case t: TextEvent =>
         buffer.append(t.text)
         ReceiveResult.incomplete
-      case en: EndElement =>
+      case _: EndElement =>
         val text = buffer.toString
         buffer.clear
         ReceiveResult.complete(text)
-      case c: Comment =>
+      case _: Comment =>
         ReceiveResult.incomplete
       case other =>
         ReceiveResult.failure(new IllegalStateException(s"Unexpected event $other in text only tag"))
