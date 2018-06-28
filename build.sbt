@@ -84,6 +84,16 @@ lazy val parsersProject = (project in file("parser")).
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")*/
   )
 
+lazy val stockExProject = (project in file("stockex")).
+  settings(
+    name := "stockex",
+    organization := rootGroup,
+    version := projectVersion,
+    scalaVersion := scalaVertion,
+    libraryDependencies ++= Seq(junit, junitInterface) /*,
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")*/
+  )
+
 lazy val performanceTests = (project in file("jmhtests"))
   .enablePlugins(JmhPlugin)
   .settings(
