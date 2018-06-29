@@ -90,7 +90,7 @@ lazy val stockExProject = (project in file("stockex")).
     organization := rootGroup,
     version := projectVersion,
     scalaVersion := scalaVertion,
-    libraryDependencies ++= Seq(junit, junitInterface) /*,
+    libraryDependencies ++= Seq(cats, junit, junitInterface) /*,
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")*/
   )
 
